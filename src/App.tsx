@@ -164,7 +164,7 @@ export default function App() {
               </div>
             ))}
           </div>
-          <p className="coach">五枚配られた。残す三枚が、今局のあなた。</p>
+          <p className="coach">条件札が5枚。勝ちたい待ちを3枚残す。高い点は難しい。</p>
           <div className="fan">
             {me.draft.map((id) => (
               <PatternCard
@@ -197,7 +197,7 @@ export default function App() {
 
           <section className="skybox">
             {g.round === 1 && !waiting && (
-              <p className="coach">同じ空。左・中・右を取るか、見るか、待ちを打つ。</p>
+              <p className="coach">今の3枚が空。取る＝手元へ。同じ位置は衝突して誰も取れない。打つ＝待ちを試す。外すと札は死ぬ。</p>
             )}
             <p className="lbl">空</p>
             <div className="sky">
@@ -320,26 +320,53 @@ export default function App() {
 }
 
 function HowTo() {
-  const paper = { backgroundImage: `url(${art('tanzaku.png')})` }
+  const [p, setP] = useState(0)
   return (
-    <ol className="howto">
-      <li style={paper}>
-        <strong>同じ空</strong>
-        <span>袋から記号が三つ。四人とも同じものを見る。</span>
-      </li>
-      <li style={paper}>
-        <strong>別の待ち</strong>
-        <span>秘密の空模様は三つ。同じ空が、誰かには宝、誰かにはゴミ。</span>
-      </li>
-      <li style={paper}>
-        <strong>一手</strong>
-        <span>見る、取る、打つ。同時に出す。</span>
-      </li>
-      <li style={paper}>
-        <strong>圧</strong>
-        <span>同じ位置は誰も取れない。打って外すと崩れ。八回、または達成三つ。</span>
-      </li>
-    </ol>
+    <div className="sheet">
+      {p === 0 && (
+        <>
+          <h3>勝ち方</h3>
+          <p>あなたは秘密の条件札を3枚持つ。名前は<strong>空模様</strong>。札に書いてある状況が、今の空と手元で揃ったら点になる。</p>
+          <p>揃ったと思って<strong>打つ</strong>。当たれば札の点数。外すとその札は崩れ、戻ってこない。</p>
+          <p>誰かが3つ達成するか、空が8回出終わったとき、点が多い人の勝ち。</p>
+        </>
+      )}
+      {p === 1 && (
+        <>
+          <h3>一手だけ、四人同時</h3>
+          <p>毎ラウンド、袋から記号が3つ出る。左・中・右。全員が同じ3つを見る。</p>
+          <ul>
+            <li><b>取る</b>　その位置の記号を手元（軒下）へ。同じ位置を2人以上が取ったら、誰も貰えない。</li>
+            <li><b>見る</b>　次の空の手がかりを得る。</li>
+            <li><b>打つ</b>　待ち1枚を公開。今の空＋軒下で判定。</li>
+          </ul>
+        </>
+      )}
+      {p === 2 && (
+        <>
+          <h3>最初にやること</h3>
+          <p>5枚配られる。3枚残す。残した3枚が今局の勝ち筋。他人には見えない。</p>
+          <div className="ex-sky">
+            <Tile sym="hi" />
+            <Tile sym="ame" />
+            <Tile sym="kaminari" />
+          </div>
+          <p>この空なら「三色の空」は打てる。「無雷」は打てない。</p>
+        </>
+      )}
+      <div className="pager">
+        {[0, 1, 2].map((i) => (
+          <button key={i} className={p === i ? 'on' : ''} onClick={() => setP(i)}>
+            {i + 1}
+          </button>
+        ))}
+        {p < 2 ? (
+          <button className="next" onClick={() => setP(p + 1)}>つぎへ</button>
+        ) : (
+          <span className="ready">これで卓に着ける</span>
+        )}
+      </div>
+    </div>
   )
 }
 
