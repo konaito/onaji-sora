@@ -70,11 +70,15 @@ body {
   opacity: 0.85;
 }
 
-.guide {
+.guides {
   position: absolute;
   z-index: 4;
   top: 1.15rem;
   right: 1.4rem;
+  display: flex;
+  gap: 1.1rem;
+}
+.guide {
   background: none;
   border: 0;
   color: var(--moon);
@@ -453,11 +457,82 @@ body {
   display: grid; place-items: center; z-index: 5;
 }
 .help article {
-  background: rgba(8, 8, 14, 0.82);
+  background: rgba(8, 8, 14, 0.92);
   padding: 1.4rem 1.2rem 1.1rem;
   max-width: 40rem;
   width: min(94vw, 40rem);
 }
+.help article.refart {
+  max-width: 54rem;
+  width: min(96vw, 54rem);
+  max-height: 88vh;
+  overflow: auto;
+}
+.ref { text-align: left; color: var(--moon); }
+.ref h3 {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+}
+.ref h4 {
+  margin: 1rem 0 0.4rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.05rem;
+  color: #f0d2c8;
+}
+.ref h5 {
+  margin: 0.85rem 0 0.3rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 0.95rem;
+}
+.ref h5 small {
+  margin-left: 0.6rem;
+  font-family: var(--font-hand);
+  font-size: 0.82rem;
+  opacity: 0.75;
+  font-weight: 400;
+}
+.ref ul { margin: 0.2rem 0 0.5rem; padding: 0 0 0 1.1rem; }
+.ref li, .refnote {
+  font-family: var(--font-hand);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0 0 0.35rem;
+}
+.refnote { opacity: 0.75; }
+.sym { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.sym span { font-family: var(--font-display); font-size: 0.85rem; }
+.ref table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-hand);
+  font-size: 0.88rem;
+}
+.ref th, .ref td {
+  border-bottom: 1px solid rgba(232, 238, 244, 0.12);
+  padding: 0.32rem 0.4rem;
+  text-align: left;
+  vertical-align: top;
+}
+.ref th {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  opacity: 0.6;
+  font-weight: 400;
+}
+.ref td.vp {
+  font-family: var(--font-seal);
+  color: #f0d2c8;
+  width: 2.2rem;
+}
+.ref td.nm {
+  font-family: var(--font-display);
+  white-space: nowrap;
+}
+.ref td.wh { white-space: nowrap; opacity: 0.8; }
 .endcard {
   position: fixed; inset: 0;
   display: grid; place-items: center;

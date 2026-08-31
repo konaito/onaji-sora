@@ -6,6 +6,7 @@ import {
   type Sym,
   JP,
   SYMBOLS,
+  CARDS,
   beginPlay,
   card,
   confirmedCount,
@@ -76,6 +77,7 @@ export default function App() {
   const [utsuId, setUtsuId] = useState<number | null>(null)
   const [bet, setBet] = useState<Sym | null>(null)
   const [help, setHelp] = useState(false)
+  const [refOpen, setRefOpen] = useState(false)
   const [flash, setFlash] = useState('')
   const me = g.seats[0]!
 
@@ -133,12 +135,15 @@ export default function App() {
       <h1 className="brand">同じ空</h1>
       {g.phase === 'play' && <p className="round">第{KAN[g.round] ?? g.round}の空</p>}
       {g.phase === 'draft' && <p className="round">残す {pick.length}／三</p>}
-      <button className="guide" onClick={() => setHelp(true)}>遊び方</button>
+      <div className="guides">
+        <button className="guide" onClick={() => setHelp(true)}>遊び方</button>
+        <button className="guide" onClick={() => setRefOpen(true)}>早見</button>
+      </div>
 
       {g.phase === 'title' && (
         <div className="titlewrap">
           <p className="kicker">同じ空の下、四人は別の天気を待っている</p>
-          <HowTo />
+          <HowTo onOpenRef={() => { setHelp(false); setRefOpen(true) }} />
           <div className="opponents">
             {g.seats.slice(1).map((s) => (
               <div key={s.name} className="opp">
@@ -310,8 +315,17 @@ export default function App() {
       {help && (
         <div className="help" onClick={() => setHelp(false)}>
           <article onClick={(e) => e.stopPropagation()}>
-            <HowTo />
+            <HowTo onOpenRef={() => { setHelp(false); setRefOpen(true) }} />
             <button className="guide close" onClick={() => setHelp(false)}>とじる</button>
+          </article>
+        </div>
+      )}
+
+      {refOpen && (
+        <div className="help" onClick={() => setRefOpen(false)}>
+          <article className="refart" onClick={(e) => e.stopPropagation()}>
+            <RefSheet />
+            <button className="guide close" onClick={() => setRefOpen(false)}>とじる</button>
           </article>
         </div>
       )}
@@ -319,7 +333,7 @@ export default function App() {
   )
 }
 
-function HowTo() {
+function HowTo({ onOpenRef }: { onOpenRef?: () => void }) {
   const [p, setP] = useState(0)
   return (
     <div className="sheet">
@@ -329,6 +343,9 @@ function HowTo() {
           <p>あなたは秘密の条件札を3枚持つ。名前は<strong>空模様</strong>。札に書いてある状況が、今の空と手元で揃ったら点になる。</p>
           <p>揃ったと思って<strong>打つ</strong>。当たれば札の点数。外すとその札は崩れ、戻ってこない。</p>
           <p>誰かが3つ達成するか、空が8回出終わったとき、点が多い人の勝ち。</p>
+          {onOpenRef && (
+            <p><button type="button" className="next" onClick={onOpenRef}>空模様24枚の早見</button></p>
+          )}
         </>
       )}
       {p === 1 && (
@@ -366,6 +383,97 @@ function HowTo() {
           <span className="ready">これで卓に着ける</span>
         )}
       </div>
+    </div>
+  )
+}
+
+
+const GROUPS: { title: string; hint: string; ids: number[] }[] = [
+  { title: '空き軒', hint: '手元が空のとき', ids: [1, 2, 3] },
+  { title: '満軒', hint: '手元が3つのとき。達成すると軒下は空になる', ids: [4, 5, 6] },
+  { title: '偏り', hint: '空＋軒下の合計で見る', ids: [7, 8, 9] },
+  { title: '同居', hint: '特定の記号が同時にいる', ids: [10, 11, 12, 13] },
+  { title: 'なし', hint: '特定の記号がゼロ', ids: [14, 15, 16] },
+  { title: '数え・色', hint: '枚数や色の形', ids: [17, 18, 19, 20, 21, 22] },
+  { title: '既出', hint: '捨て場の履歴', ids: [23, 24] },
+]
+const WHERE: Record<number, string> = {
+  1: '軒下', 2: '軒下と空', 3: '軒下と空',
+  4: '軒下', 5: '軒下と空', 6: '軒下',
+  7: '空＋軒下', 8: '空＋軒下', 9: '空＋軒下',
+  10: '空＋軒下', 11: '空＋軒下', 12: '空のみ', 13: '空＋軒下',
+  14: '空＋軒下', 15: '空＋軒下', 16: '空のみ',
+  17: '空＋軒下', 18: '空＋軒下', 19: '空＋軒下',
+  20: '空のみ', 21: '空のみ', 22: '空のみ',
+  23: '既出と空', 24: '既出',
+}
+const COST: Record<string, string> = {
+  all: '達成で軒下を空に',
+  kaze: '達成で風を捨てる',
+  kaminari: '達成で雷を捨てる',
+  'one-hi': '達成で日を1つ捨てる',
+  tsuki: '達成で月を捨てる',
+}
+
+function RefSheet() {
+  return (
+    <div className="ref">
+      <h3>早見</h3>
+      <section>
+        <h4>記号　各8枚、袋へ</h4>
+        <div className="ex-sky">
+          {SYMBOLS.map((s) => (
+            <div key={s} className="sym">
+              <Tile sym={s} />
+              <span>{JP[s]}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section>
+        <h4>卓のもの</h4>
+        <ul>
+          <li><b>空</b>　今ラウンドの3つ。左・中・右。全員が同じものを見る。</li>
+          <li><b>軒下</b>　取って手元に置いた記号。最大3。溢れた古い1つは既出へ。</li>
+          <li><b>既出</b>　取れなかった記号。公開の捨て場。</li>
+          <li><b>達成 / 崩れ</b>　打って当たった札が点。外すと崩れ、0点で戻らない。</li>
+        </ul>
+      </section>
+      <section>
+        <h4>一手（同時に1つ）</h4>
+        <ul>
+          <li><b>取る</b>　空の左／中／右を軒下へ。同じ位置を2人以上が取ったら、誰も貰えない。</li>
+          <li><b>見る</b>　次の空の手がかり（観測、最大2）。</li>
+          <li><b>打つ</b>　待ち1枚を公開。今の空＋軒下（札による）で判定。</li>
+        </ul>
+      </section>
+      <section>
+        <h4>空模様　24枚</h4>
+        <p className="refnote">点は達成したときの得点。「見る」列は、判定に使う場所。</p>
+        {GROUPS.map((g) => (
+          <div key={g.title} className="g">
+            <h5>{g.title}<small>{g.hint}</small></h5>
+            <table>
+              <thead>
+                <tr><th>点</th><th>札</th><th>条件</th><th>見る</th></tr>
+              </thead>
+              <tbody>
+                {g.ids.map((id) => {
+                  const c = CARDS.find((x) => x.id === id)!
+                  return (
+                    <tr key={id}>
+                      <td className="vp">{c.vp}</td>
+                      <td className="nm">{c.name}</td>
+                      <td>{c.text}{c.consume ? `　${COST[c.consume]}` : ''}</td>
+                      <td className="wh">{WHERE[id]}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </section>
     </div>
   )
 }
