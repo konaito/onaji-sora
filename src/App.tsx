@@ -34,16 +34,12 @@ const SEAL: Record<number, string> = { 2: '弐', 3: '参', 4: '四', 5: '五', 6
 const KAN = ['〇', '一', '二', '三', '四', '五', '六', '七', '八']
 
 function Tile({ sym, large }: { sym: Sym; large?: boolean }) {
-  const i = SYMBOLS.indexOf(sym)
   return (
-    <div
+    <img
       className={`tile ${large ? 'lg' : ''}`}
-      style={{
-        backgroundImage: `url(${art('tiles.png')})`,
-        backgroundPosition: `${(i / 5) * 100}% 50%`,
-        backgroundSize: '600% 100%',
-      }}
-      title={JP[sym]}
+      src={art(`sym/${sym}.png`)}
+      alt={JP[sym]}
+      draggable={false}
     />
   )
 }
