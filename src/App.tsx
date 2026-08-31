@@ -18,6 +18,7 @@ import {
   startDraft,
 } from './game'
 import './App.css'
+import * as se from './se'
 
 const art = (f: string) => `${import.meta.env.BASE_URL}art/${f}`
 const NPC_ART: Record<string, string> = {
@@ -75,9 +76,12 @@ export default function App() {
   const [help, setHelp] = useState(false)
   const [refOpen, setRefOpen] = useState(false)
   const [flash, setFlash] = useState('')
+  const [mute, setMute] = useState(false)
   const me = g.seats[0]!
 
   const reset = () => {
+    se.unlock()
+    se.wood()
     setG(newGame())
     setPick([])
     setUtsuId(null)
@@ -85,22 +89,44 @@ export default function App() {
   }
 
   const sit = () => {
+    se.unlock()
+    se.wood()
     setHelp(false)
     setG((x) => startDraft(x))
   }
 
   const toggleKeep = (id: number) => {
+    se.unlock()
+    se.paper()
     setPick((p) => (p.includes(id) ? p.filter((n) => n !== id) : p.length >= 3 ? p : [...p, id]))
   }
 
   const confirmDraft = () => {
     if (pick.length !== 3) return
-    setG((x) => beginPlay(keepDraft(x, 0, pick)))
+    se.unlock()
+    se.stamp()
+    setG((x) => {
+      const next = beginPlay(keepDraft(x, 0, pick))
+      window.setTimeout(() => se.sky(), 180)
+      return next
+    })
   }
 
   const commit = (a: Action) => {
+    se.unlock()
+    if (a.t === 'toru') se.toru()
+    else if (a.t === 'miru') se.miru()
+    else se.utsu()
     setFlash(a.t === 'toru' ? '取る' : a.t === 'miru' ? '見る' : '打つ')
-    setG((x) => lockNpcs(lock(x, 0, a)))
+    setG((x) => {
+      const next = lockNpcs(lock(x, 0, a))
+      const added = next.log.slice(x.log.length)
+      if (added.some((l) => l.includes('衝突'))) window.setTimeout(() => se.collide(), 80)
+      if (added.some((l) => l.includes('達成'))) window.setTimeout(() => se.hit(), 90)
+      if (added.some((l) => l.includes('崩れ'))) window.setTimeout(() => se.miss(), 90)
+      if (next.phase === 'play' && next.round !== x.round) window.setTimeout(() => se.sky(), 220)
+      return next
+    })
     setUtsuId(null)
     setBet(null)
     window.setTimeout(() => setFlash(''), 700)
@@ -134,6 +160,20 @@ export default function App() {
       <div className="guides">
         <button className="guide" onClick={() => setHelp(true)}>遊び方</button>
         <button className="guide" onClick={() => setRefOpen(true)}>早見</button>
+        <button
+          className="guide"
+          onClick={() => {
+            const v = !mute
+            setMute(v)
+            se.setMuted(v)
+            if (!v) {
+              se.unlock()
+              se.paper()
+            }
+          }}
+        >
+          {mute ? '音オフ' : '音'}
+        </button>
       </div>
 
       {g.phase === 'title' && (
