@@ -113,20 +113,29 @@ body {
 }
 
 .sheet {
-  max-width: 36rem;
+  max-width: 38rem;
   margin: 0 auto;
   text-align: left;
-  background: rgba(18, 14, 10, 0.82);
+  background: rgba(18, 14, 10, 0.88);
   border: 1px solid rgba(232, 238, 244, 0.18);
-  padding: 1.35rem 1.5rem 1.1rem;
+  padding: 1.15rem 1.4rem 1rem;
   backdrop-filter: blur(8px);
   box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+  max-height: 62vh;
+  overflow: auto;
 }
 .sheet h3 {
-  margin: 0 0 0.7rem;
+  margin: 0 0 0.55rem;
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 1.45rem;
+}
+.sheet h4 {
+  margin: 0.85rem 0 0.25rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.02rem;
+  color: #f0d2c8;
 }
 .sheet p, .sheet li {
   font-family: var(--font-hand);
@@ -134,7 +143,14 @@ body {
   line-height: 1.85;
   margin: 0 0 0.7rem;
 }
-.sheet ul { margin: 0.2rem 0 0.8rem; padding: 0 0 0 1.1rem; }
+.sheet ul { margin: 0.15rem 0 0.55rem; padding: 0 0 0 1.15rem; }
+.sheet .acts-mini { list-style: none; padding: 0; }
+.sheet .acts-mini li {
+  margin: 0 0 0.45rem;
+  padding: 0.45rem 0.6rem;
+  background: rgba(0,0,0,0.28);
+  border-left: 3px solid var(--shu);
+}
 .sheet b, .sheet strong { font-family: var(--font-display); font-weight: 400; color: #f0d2c8; }
 .ex-sky { display: flex; gap: 0.55rem; margin: 0.4rem 0 0.8rem; }
 .pager {
@@ -461,9 +477,11 @@ body {
 }
 .help article {
   background: rgba(8, 8, 14, 0.92);
-  padding: 1.4rem 1.2rem 1.1rem;
-  max-width: 40rem;
-  width: min(94vw, 40rem);
+  padding: 1.2rem 1.1rem 1rem;
+  max-width: 42rem;
+  width: min(94vw, 42rem);
+  max-height: 88vh;
+  overflow: auto;
 }
 .help article.refart {
   max-width: 54rem;
